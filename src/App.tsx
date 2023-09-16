@@ -5,16 +5,20 @@ import { FaSearch } from "react-icons/fa";
 import "./App.css";
 import { Photo } from "./components";
 
+//@ url pode estar no service enquanto as querys podem  ser gerenciadas na store
+//@ o client id pode estar sendo chamado direto na store
 const clientID = `?client_id=${import.meta.env.VITE_API_KEY}`;
 const mainUrl = `https://api.unsplash.com/photos/`;
 const searchUrl = `https://api.unsplash.com/search/photos/`;
 
 function App() {
+  //@ se criar forma de store da pra fazer todos estados estarem na store
   const [loading, setLoading] = useState(false); //loading
   const [photos, setPhotos] = useState<any[]>([]); //photos
   const [page, setPage] = useState(1); //page
   const [query, setQuery] = useState(""); ///query
 
+  //@ isola função em um fetch a parte
   const fetchImages = async () => {
     setLoading(true);
     let url;
@@ -46,10 +50,12 @@ function App() {
     }
   };
 
+  //@ talvez compense fazer um sistemas de store
   useEffect(() => {
     fetchImages();
   }, [page]);
 
+  //@ será que tem como fazer um sistema de pagination com store ou sem usar useEffect
   useEffect(() => {
     window.addEventListener("scroll", () => {
       if (
