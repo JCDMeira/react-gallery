@@ -4,12 +4,7 @@ import { SyntheticEvent, useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import "./App.css";
 import { Photo } from "./components";
-
-//@ url pode estar no service enquanto as querys podem  ser gerenciadas na store
-//@ o client id pode estar sendo chamado direto na store
-const clientID = `?client_id=${import.meta.env.VITE_API_KEY}`;
-const mainUrl = `https://api.unsplash.com/photos/`;
-const searchUrl = `https://api.unsplash.com/search/photos/`;
+import { getImages } from "./service";
 
 function App() {
   //@ se criar forma de store da pra fazer todos estados estarem na store
@@ -21,18 +16,8 @@ function App() {
   //@ isola função em um fetch a parte
   const fetchImages = async () => {
     setLoading(true);
-    let url;
-    const urlPage = `&page=${page}`;
-    const urlQuery = `&query=${query}`;
-
-    if (query) {
-      url = `${searchUrl}${clientID}${urlPage}${urlQuery}`;
-    } else {
-      url = `${mainUrl}${clientID}${urlPage}`;
-    }
     try {
-      const response = await fetch(url);
-      const data = await response.json();
+      const data = await getImages({ page, query });
 
       setPhotos((oldPhoto) => {
         if (query && page === 1) {
