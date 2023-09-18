@@ -17,5 +17,5 @@ export const getImages = async ({ query, page }: getImagesDTO) => {
   const { data } = await imagesService.get(`${urlComplement}${clientID}`, {
     params,
   });
-  return data;
+  return data?.results ? data.results : data;
 };

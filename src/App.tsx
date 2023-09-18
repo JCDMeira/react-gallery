@@ -5,30 +5,24 @@ import { FaSearch } from "react-icons/fa";
 import "./App.css";
 import { Photo } from "./components";
 import { getImages } from "./service";
+import { imagesStore } from "./store";
 
 function App() {
+  const photos = imagesStore((state) => state.photos);
+  const setPhotos = imagesStore((state) => state.setPhotos);
+  const query = imagesStore((state) => state.query);
+  const setQuery = imagesStore((state) => state.setQuery);
+  const page = imagesStore((state) => state.page);
+  const setPage = imagesStore((state) => state.setPage);
   //@ se criar forma de store da pra fazer todos estados estarem na store
   const [loading, setLoading] = useState(false); //loading
-  const [photos, setPhotos] = useState<any[]>([]); //photos
-  const [page, setPage] = useState(1); //page
-  const [query, setQuery] = useState(""); ///query
 
   //@ isola função em um fetch a parte
   const fetchImages = async () => {
     setLoading(true);
     try {
       const data = await getImages({ page, query });
-
       setPhotos(data);
-      // setPhotos((oldPhoto) => {
-      //   if (query && page === 1) {
-      //     return data.results;
-      //   } else if (query) {
-      //     return [...oldPhoto, ...data.results];
-      //   } else {
-      //     return [...oldPhoto, ...data];
-      //   }
-      // });
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -48,9 +42,7 @@ function App() {
         !loading &&
         window.innerHeight + window.scrollY >= document.body.scrollHeight - 2
       ) {
-        setPage((oldPage) => {
-          return oldPage + 1;
-        });
+        setPage(page + 1);
       }
     });
     return () => window.removeEventListener("scroll", () => {});
@@ -80,7 +72,7 @@ function App() {
       </section>
       <section className="photos">
         <div className="photos-center">
-          {photos.map((image, index) => {
+          {photos?.map((image, index) => {
             return <Photo key={index} {...image} />;
           })}
         </div>
