@@ -14,7 +14,11 @@ export const imagesStore = create<IImageStore>((set) => ({
   photos: [],
   setPhotos: (photos) =>
     set((state) => {
-      if (state.query && state.page === 1) return { ...state, photos };
+      if (state.query && state.page === 1) {
+        return { ...state, photos };
+      } else if (state.page === 1) {
+        return { ...state, photos };
+      }
       return { ...state, photos: [...state.photos, ...photos] };
     }),
   query: "",

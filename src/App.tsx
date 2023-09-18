@@ -19,15 +19,16 @@ function App() {
     try {
       const data = await getImages({ page, query });
 
-      setPhotos((oldPhoto) => {
-        if (query && page === 1) {
-          return data.results;
-        } else if (query) {
-          return [...oldPhoto, ...data.results];
-        } else {
-          return [...oldPhoto, ...data];
-        }
-      });
+      setPhotos(data);
+      // setPhotos((oldPhoto) => {
+      //   if (query && page === 1) {
+      //     return data.results;
+      //   } else if (query) {
+      //     return [...oldPhoto, ...data.results];
+      //   } else {
+      //     return [...oldPhoto, ...data];
+      //   }
+      // });
       setLoading(false);
     } catch (error) {
       console.log(error);
