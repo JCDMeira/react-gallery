@@ -14,6 +14,7 @@ function App() {
   const setQuery = imagesStore((state) => state.setQuery);
   const page = imagesStore((state) => state.page);
   const setPage = imagesStore((state) => state.setPage);
+  const fetchMore = imagesStore((state) => state.fetchMore);
   //@ se criar forma de store da pra fazer todos estados estarem na store
   const [loading, setLoading] = useState(false); //loading
 
@@ -42,7 +43,7 @@ function App() {
         !loading &&
         window.innerHeight + window.scrollY >= document.body.scrollHeight - 2
       ) {
-        setPage(page + 1);
+        fetchMore();
       }
     });
     return () => window.removeEventListener("scroll", () => {});

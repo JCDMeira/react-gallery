@@ -8,6 +8,7 @@ interface IImageStore {
   setQuery: (query: string) => void;
   page: number;
   setPage: (page: number) => void;
+  fetchMore: () => void;
 }
 
 export const imagesStore = create<IImageStore>((set) => ({
@@ -25,4 +26,5 @@ export const imagesStore = create<IImageStore>((set) => ({
   setQuery: (query) => set((state) => ({ ...state, query })),
   page: 1,
   setPage: (page) => set((state) => ({ ...state, page })),
+  fetchMore: () => set((state) => ({ ...state, page: state.page + 1 })),
 }));
