@@ -15,6 +15,8 @@ function App() {
   //! mas é possível testar aderir um swr e fazer funcionar um modelo híbrido com store.
   //! porém vale lembrar que o próprio swr faz o sistema de cache, que possibilita tratar o uso de informações que ele tem em cache
   //! talvez de pra fazer uma view-model com swr + custom hook
+  //# talvez até orientar a eventos ou conteiner, e envelopar certas condições, para quando precisar chamar o dado
+  //# em um cenário que o conteiner tenha acesso as querys, ids ou infos globais da store responsável
   const photos = imagesStore((state) => state.photos);
   const setPhotos = imagesStore((state) => state.setPhotos);
   const query = imagesStore((state) => state.query);
