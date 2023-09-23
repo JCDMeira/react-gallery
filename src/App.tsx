@@ -4,7 +4,6 @@ import { SyntheticEvent, useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import "./App.css";
 import { Photo } from "./components";
-import { getImages } from "./service";
 import { imagesStore } from "./store";
 
 function App() {
@@ -18,11 +17,11 @@ function App() {
   //# talvez até orientar a eventos ou conteiner, e envelopar certas condições, para quando precisar chamar o dado
   //# em um cenário que o conteiner tenha acesso as querys, ids ou infos globais da store responsável
   const photos = imagesStore((state) => state.photos);
-  const setPhotos = imagesStore((state) => state.setPhotos);
   const query = imagesStore((state) => state.query);
   const setQuery = imagesStore((state) => state.setQuery);
   const page = imagesStore((state) => state.page);
   const setPage = imagesStore((state) => state.setPage);
+  const fetchData = imagesStore((state) => state.fetchData);
   const fetchMore = imagesStore((state) => state.fetchMore);
   //@ se criar forma de store da pra fazer todos estados estarem na store
   const [loading, setLoading] = useState(false); //loading
@@ -31,8 +30,7 @@ function App() {
   const fetchImages = async () => {
     setLoading(true);
     try {
-      const data = await getImages({ page, query });
-      setPhotos(data);
+      fetchData();
       setLoading(false);
     } catch (error) {
       console.log(error);
