@@ -19,8 +19,7 @@ function App() {
   const photos = imagesStore((state) => state.photos);
   const query = imagesStore((state) => state.query);
   const setQuery = imagesStore((state) => state.setQuery);
-  const page = imagesStore((state) => state.page);
-  const setPage = imagesStore((state) => state.setPage);
+  const resetFetch = imagesStore((state) => state.resetFetch);
   const fetchData = imagesStore((state) => state.fetchData);
   const fetchMore = imagesStore((state) => state.fetchMore);
   //@ se criar forma de store da pra fazer todos estados estarem na store
@@ -41,7 +40,7 @@ function App() {
   //@ talvez compense fazer um sistemas de store
   useEffect(() => {
     fetchImages();
-  }, [page, query]);
+  }, []);
 
   //@ será que tem como fazer um sistema de pagination com store ou sem usar useEffect
   useEffect(() => {
@@ -58,8 +57,7 @@ function App() {
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    setPage(1);
-    fetchImages();
+    resetFetch();
   };
 
   return (
