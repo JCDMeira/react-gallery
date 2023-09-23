@@ -6,9 +6,12 @@ interface IImageStore {
   photos: any[];
   query: string;
   page: number;
+  isLoading: boolean;
   setQuery: (query: string) => void;
   resetFetch: () => void;
   fetchData: () => void;
+  initFetchData: () => void;
+  finishFetchData: () => void;
   fetchMore: () => void;
 }
 
@@ -16,10 +19,11 @@ export const imagesStore = create<IImageStore>((set, get) => ({
   photos: [],
   query: "",
   page: 1,
+  isLoading: false,
   setQuery: (query) => {
-    const fetchData = get().fetchData;
+    const resetFetch = get().resetFetch;
     set((state) => ({ ...state, query }));
-    fetchData();
+    resetFetch();
   },
   resetFetch: () => {
     const fetchData = get().fetchData;
@@ -29,7 +33,11 @@ export const imagesStore = create<IImageStore>((set, get) => ({
   fetchData: async () => {
     const page = get().page;
     const query = get().query;
+    const initFetchData = get().initFetchData;
+    const finishFetchData = get().finishFetchData;
+    initFetchData();
     const data = await getImages({ page, query });
+    finishFetchData();
     set((state) => {
       if (state.query && state.page === 1) {
         return { ...state, photos: data };
@@ -41,7 +49,17 @@ export const imagesStore = create<IImageStore>((set, get) => ({
   },
   fetchMore: () => {
     const fetchData = get().fetchData;
-    set((state) => ({ ...state, page: state.page + 1 }));
-    fetchData();
+    const isLoading = get().isLoading;
+    set((state) => ({
+      ...state,
+      page: isLoading ? state.page : state.page + 1,
+    }));
+    if (!isLoading) fetchData();
+  },
+  initFetchData: () => {
+    set((state) => ({ ...state, isLoading: true }));
+  },
+  finishFetchData: () => {
+    set((state) => ({ ...state, isLoading: false }));
   },
 }));
