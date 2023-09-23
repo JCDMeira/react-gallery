@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import { getImages } from "./service";
+import { QueryHandler } from "./QueryHandler";
 
 interface IImageStore {
   photos: any[];
@@ -14,20 +15,6 @@ interface IImageStore {
   finish_FetchData: () => void;
 }
 
-const setQuey = (key: string, value: string) => {
-  if ("URLSearchParams" in window) {
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.set(key, value);
-    const newRelativePathQuery =
-      window.location.pathname + "?" + searchParams.toString();
-    history.pushState(null, "", newRelativePathQuery);
-  }
-};
-const getQuey = (key: string) => {
-  const searchParams = new URLSearchParams(window.location.search);
-  return searchParams.get(key) || "";
-};
-
 export const imagesStore = create<IImageStore>((set, get) => ({
   photos: [],
   page: 1,
@@ -35,7 +22,7 @@ export const imagesStore = create<IImageStore>((set, get) => ({
   setQuery: (query) => {
     const reset_Fetch = get().reset_Fetch;
     set((state) => ({ ...state, query }));
-    setQuey("query", query);
+    QueryHandler.setQuey("query", query);
     reset_Fetch();
   },
   reset_Fetch: () => {
@@ -45,7 +32,7 @@ export const imagesStore = create<IImageStore>((set, get) => ({
   },
   fetchData: async () => {
     const page = get().page;
-    const query = getQuey("query");
+    const query = QueryHandler.getQuey("query");
     const init_FetchData = get().init_FetchData;
     const finish_FetchData = get().finish_FetchData;
     init_FetchData();
