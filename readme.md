@@ -26,7 +26,7 @@
 
 # 🚀 Proposta <a name="id01"></a>
 
-Tem como objetio criar uma galeria com imagens do unsplash e mostrar imagens paginadas. Com sistema de infinity scroll.
+Tem como objetivo criar uma galeria com imagens do unsplash e mostrar imagens paginadas. Com sistema de infinity scroll.
 Ao chegar no final de cada página é requisitado mais medias.
 
 ## Conclusões <a name="id01.01"></a>
@@ -99,6 +99,141 @@ const handleSubmit = (e: SyntheticEvent) => {
   fetchImages();
 };
 ```
+
+### Usando a store para execução das ações de fetch
+
+Após estudos de comportamento da store do zustand foi possível refatorar a aplicação para adequar o uso da store, sendo assim, a store passa a incorporar também as ações async e o sistema de paginação.
+
+A lógica dentro do componente app fica da seguinte forma, apresentandoo uma maneira bem mais clean. Ainda concentrando apenas as ações de setQuery, fetchData e fetchMore, além da própria informação das photos.
+
+Também foi aplicado um debouce na ação de query, separando a apresentação da view da passagem da informação para execução da chamada, resultando em menos chamadas repetidas.
+
+Cada use effect também teve a correção do exhaustive deeps sem impacto em renders adicionais, porque as informações e actions vindas da store são imutáveis.
+
+```ts
+const photos = imagesStore((state) => state.photos);
+const setQuery = imagesStore((state) => state.setQuery);
+const fetchData = imagesStore((state) => state.fetchData);
+const fetchMore = imagesStore((state) => state.fetchMore);
+
+const [searchString, setSearchString] = useState("");
+const debouncedValue = useDebounce<string>(searchString, 300);
+
+useEffect(() => {
+  fetchData();
+}, [fetchData]);
+
+useEffect(() => {
+  setQuery(debouncedValue);
+}, [debouncedValue, setQuery]);
+
+useEffect(() => {
+  window.addEventListener("scroll", () => {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {
+      fetchMore();
+    }
+  });
+  return () => window.removeEventListener("scroll", () => {});
+}, [fetchMore]);
+```
+
+A ação de debounce é um custom hook escrito da seguinte forma.
+
+```ts
+import { useEffect, useState } from "react";
+
+export function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+```
+
+Já a store, que centraliza todas informações e lógicas ficou da seguinte forma.
+
+Fazendo uso do get é possível acessar informações da store dentro das demais ações, isso sem depender do state passado por padrão para o set, isso possibilita a execução e manipulação dentro de uma action.
+Também é possível encadear ações, como por exemplo, no uso de ações que ficaram para uso interno, representadas com nomeclatura snake case (separadas por \_).
+Além de ações "empilhadas", como por exemplo, re-executar fetchData após atualização do número da page no fetchMore.
+
+```ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { create } from "zustand";
+import { getImages } from "./service";
+
+interface IImageStore {
+  photos: any[];
+  query: string;
+  page: number;
+  isLoading: boolean;
+  setQuery: (query: string) => void;
+  fetchData: () => void;
+  fetchMore: () => void;
+  reset_Fetch: () => void;
+  init_FetchData: () => void;
+  finish_FetchData: () => void;
+}
+
+export const imagesStore = create<IImageStore>((set, get) => ({
+  photos: [],
+  query: "",
+  page: 1,
+  isLoading: false,
+  setQuery: (query) => {
+    const reset_Fetch = get().reset_Fetch;
+    set((state) => ({ ...state, query }));
+    reset_Fetch();
+  },
+  reset_Fetch: () => {
+    const fetchData = get().fetchData;
+    set((state) => ({ ...state, page: 1 }));
+    fetchData();
+  },
+  fetchData: async () => {
+    const page = get().page;
+    const query = get().query;
+    const init_FetchData = get().init_FetchData;
+    const finish_FetchData = get().finish_FetchData;
+    init_FetchData();
+    const data = await getImages({ page, query });
+    finish_FetchData();
+    set((state) => {
+      if (state.query && state.page === 1) {
+        return { ...state, photos: data };
+      } else if (state.page === 1) {
+        return { ...state, photos: data };
+      }
+      return { ...state, photos: [...state.photos, ...data] };
+    });
+  },
+  fetchMore: () => {
+    const fetchData = get().fetchData;
+    const isLoading = get().isLoading;
+    set((state) => ({
+      ...state,
+      page: isLoading ? state.page : state.page + 1,
+    }));
+    if (!isLoading) fetchData();
+  },
+  init_FetchData: () => {
+    set((state) => ({ ...state, isLoading: true }));
+  },
+  finish_FetchData: () => {
+    set((state) => ({ ...state, isLoading: false }));
+  },
+}));
+```
+
+Como grande vantagem desse modelo temos a absorção de toda lógica e funcionamento por parte da store, assim como geração de uma abstração completa na store, exceto o comportamento de scroll que leva ao fetchMore. Assim como ações bem definidas em funções puras que garantem o resultado adequado após sua construção, já que sempre se chamará a mesma ação em qualquer lugar da aplicação. Também levando a sustentação dos dados e ações, visíveis em qualquer camada de componentes da aplicação.
+
+Já como contraponto negativo a store se torna mais complexa, tento ações sendo chamada dentro de outras ações, criando uma pilha de execução. O que para leitores do código ou para futuros devs fazendo manutenção ou adição de features, pode ser mais abstrato e complexo.
 
 # 🛠 Feito com <a name="id04"></a>
 
