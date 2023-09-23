@@ -5,8 +5,8 @@ import { getImages } from "./service";
 interface IImageStore {
   photos: any[];
   query: string;
-  setQuery: (query: string) => void;
   page: number;
+  setQuery: (query: string) => void;
   resetFetch: () => void;
   fetchData: () => void;
   fetchMore: () => void;
