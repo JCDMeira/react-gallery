@@ -4,6 +4,7 @@ import "./App.css";
 import { Photo } from "./components";
 import { imagesStore } from "./store";
 import { useDebounce } from "./useDebounce.hook";
+import { QueryHandler } from "./QueryHandler";
 
 function App() {
   const photos = imagesStore((state) => state.photos);
@@ -11,7 +12,9 @@ function App() {
   const fetchData = imagesStore((state) => state.fetchData);
   const fetchMore = imagesStore((state) => state.fetchMore);
 
-  const [searchString, setSearchString] = useState("");
+  const [searchString, setSearchString] = useState(
+    QueryHandler.getQuey("query")
+  );
   const debouncedValue = useDebounce<string>(searchString, 300);
 
   useEffect(() => {
