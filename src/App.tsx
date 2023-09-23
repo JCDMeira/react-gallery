@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import "./App.css";
@@ -18,11 +16,11 @@ function App() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     setQuery(debouncedValue);
-  }, [debouncedValue]);
+  }, [debouncedValue, setQuery]);
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -34,7 +32,7 @@ function App() {
       }
     });
     return () => window.removeEventListener("scroll", () => {});
-  }, []);
+  }, [fetchMore]);
 
   return (
     <main>
