@@ -235,6 +235,57 @@ Como grande vantagem desse modelo temos a absorção de toda lógica e funcionam
 
 Já como contraponto negativo a store se torna mais complexa, tento ações sendo chamada dentro de outras ações, criando uma pilha de execução. O que para leitores do código ou para futuros devs fazendo manutenção ou adição de features, pode ser mais abstrato e complexo.
 
+### Transformando a informação de query em uma url query
+
+Para ficar mais fácil de gerir, foi adicionado uma classe para tratar a manipulação de querys na aplicação. Essa possui métodos estáticos, para ser possível usar sem ficar instanciando a classe.
+
+```ts
+export class QueryHandler {
+  static setQuey = (key: string, value: string) => {
+    if ("URLSearchParams" in window) {
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set(key, value);
+      const newRelativePathQuery =
+        window.location.pathname + "?" + searchParams.toString();
+      history.pushState(null, "", newRelativePathQuery);
+    }
+  };
+  static getQuey = (key: string) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get(key) || "";
+  };
+}
+```
+
+A mudança que houve no método dee fetchData foi que não se usa mais o get para pegar a informação atual de query, mas sim buscando nas querys mesmo, com o uso da classe QueryHandler.
+
+```ts
+const query = QueryHandler.getQuey("query");
+```
+
+Da mesma forma a informação de query é setada com o uso da classe de manipulação.
+
+```ts
+QueryHandler.setQuey("query", query);
+```
+
+Um ponto importante é que em app é preciso iniciar o valor do estado da searchString com o valor da query. Isso ocorre para garantir que os dados serão buscados de acordo com a query na url, garantindo a url seja compartilhavel e ao entrar na mesma o valor da query persista.
+
+Caso não seja passado o useEffect que tem o setQuery fará sua execução no primeiro render e sempre que o valor de debouncedValue mudar, o que irá ocorrer no primeiro render, que ganhará o valor de searchString. Isso forçaria a aplicação a sempre começar com um valor de query vazio, ignorando a possibilidade de compartilhamento de url com valores de pesquisa.
+
+```tsx
+const [searchString, setSearchString] = useState(QueryHandler.getQuey("query"));
+const debouncedValue = useDebounce<string>(searchString, 300);
+
+useEffect(() => {
+  fetchData();
+}, [fetchData]);
+
+useEffect(() => {
+  setQuery(debouncedValue);
+}, [debouncedValue, setQuery]);
+```
+
 # 🛠 Feito com <a name="id04"></a>
 
 <br />
