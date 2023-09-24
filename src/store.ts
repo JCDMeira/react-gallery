@@ -21,7 +21,6 @@ export const imagesStore = create<IImageStore>((set, get) => ({
   isLoading: false,
   setQuery: (query) => {
     const reset_Fetch = get().reset_Fetch;
-    set((state) => ({ ...state, query }));
     QueryHandler.setQuey("query", query);
     reset_Fetch();
   },
