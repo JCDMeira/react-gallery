@@ -286,6 +286,10 @@ useEffect(() => {
 }, [debouncedValue, setQuery]);
 ```
 
+A informação de página continuou sendo gerida pela store, porque a aplicação funciona com infinity scroll, o que não justifica manter a page, e consumiria muito fazer chamadas recursisvas até chegar na página especificada.
+
+Também não há um sistema de preview da imagem em tela cheia, seria uma feature interessante para já abrir a imagem salvando o id na url, mas o unsplash trabalha com imagens aleatórias, não favorecendo essa feature.
+
 # 🛠 Feito com <a name="id04"></a>
 
 <br />
